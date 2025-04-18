@@ -1,7 +1,7 @@
 // VendorDashboard.tsx - Main dashboard component
 import React, { useState, useEffect } from 'react';
-import { Search, PlusCircle, Edit, Trash2, ArrowUpDown } from 'lucide-react';
-import { Product, PricingTier } from '../product/IProductTypes';
+import { Search, PlusCircle } from 'lucide-react';
+import { Product } from '../product/IProductTypes';
 import { ProductService } from '../product/ProductService';
 import ProductList from '../product/ProductList';
 import ProductDetail from '../product/ProductDetail';
@@ -24,14 +24,13 @@ const VendorDashboard: React.FC = () => {
   const [categories, setCategories] = useState<string[]>(['All']);
 
   const productService = ProductService.getInstance();
- const {fetchProducts} = useProductAPI();
+  const {fetchProducts} = useProductAPI();
 
   useEffect(() => {
     loadProducts();
   }, []);
 
   const loadProducts = async (): Promise<void> => {
-
     const productsResponse = await fetchProducts();
     if (productsResponse.data) {
         setProducts(productsResponse.data);
@@ -54,6 +53,12 @@ const VendorDashboard: React.FC = () => {
 
   const handleSelectProduct = (product: Product): void => {
     setSelectedProduct(product);
+    setIsEditing(false);
+    setIsAdding(false);
+  };
+
+  const handleCloseProductDetail = (): void => {
+    setSelectedProduct(null);
     setIsEditing(false);
     setIsAdding(false);
   };
@@ -82,7 +87,6 @@ const VendorDashboard: React.FC = () => {
 
   const handleSaveProduct = (product: Product): void => {
     if (isAdding) {
-        
       const newProduct = productService.addProduct(product);
       setSelectedProduct(newProduct);
     } else if (isEditing && selectedProduct) {
@@ -184,6 +188,7 @@ const VendorDashboard: React.FC = () => {
               product={selectedProduct}
               onEdit={() => setIsEditing(true)} 
               onDelete={() => handleDeleteProduct(selectedProduct.id)}
+              onClose={handleCloseProductDetail}
             />
           )}
 

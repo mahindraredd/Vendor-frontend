@@ -95,18 +95,20 @@ const ProductList: React.FC<ProductListProps> = ({
                 ${product.pricing_tiers[0]?.price.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+                <div className="flex space-x-4" onClick={(e) => e.stopPropagation()}>
                   <button 
                     onClick={() => onEditProduct(product)} 
-                    className="text-blue-500 hover:text-blue-700"
+                    className="text-blue-500 hover:text-blue-700 flex items-center"
                   >
-                    <Edit size={18} />
+                    <Edit size={18} className="mr-1" />
+                    <span>Edit</span>
                   </button>
                   <button 
                     onClick={() => onDeleteProduct(product.id)} 
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 flex items-center"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={18} className="mr-1" />
+                    <span>Delete</span>
                   </button>
                 </div>
               </td>

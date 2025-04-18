@@ -1,14 +1,15 @@
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, X } from 'lucide-react';
 import { Product } from './IProductTypes';
 
 interface ProductDetailProps {
   product: Product;
   onEdit: () => void;
   onDelete: () => void;
+  onClose?: () => void; // New prop for close functionality
 }
 
-const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete }) => {
+const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete, onClose }) => {
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -25,16 +26,27 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete
         <div className="flex space-x-2">
           <button 
             onClick={onEdit} 
-            className="p-2 text-blue-500 hover:bg-blue-50 rounded-full"
+            className="flex items-center text-blue-500 hover:text-blue-700 px-3 py-1 border border-blue-500 rounded-md hover:bg-blue-50"
           >
-            <Edit size={18} />
+            <Edit size={18} className="mr-1" />
+            <span>Edit</span>
           </button>
           <button 
             onClick={onDelete} 
-            className="p-2 text-red-500 hover:bg-red-50 rounded-full"
+            className="flex items-center text-red-500 hover:text-red-700 px-3 py-1 border border-red-500 rounded-md hover:bg-red-50"
           >
-            <Trash2 size={18} />
+            <Trash2 size={18} className="mr-1" />
+            <span>Delete</span>
           </button>
+          {onClose && (
+            <button 
+              onClick={onClose} 
+              className="flex items-center text-gray-500 hover:text-gray-700 px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              <X size={18} className="mr-1" />
+              <span>Close</span>
+            </button>
+          )}
         </div>
       </div>
       
