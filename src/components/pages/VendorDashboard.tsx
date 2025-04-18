@@ -24,7 +24,7 @@ const VendorDashboard: React.FC = () => {
   const [categories, setCategories] = useState<string[]>(['All']);
 
   const productService = ProductService.getInstance();
-  const {fetchProducts} = useProductAPI();
+  const {fetchProducts,updateProduct,deleteProduct,createProduct} = useProductAPI();
 
   useEffect(() => {
     loadProducts();
@@ -63,9 +63,11 @@ const VendorDashboard: React.FC = () => {
     setIsAdding(false);
   };
 
-  const handleDeleteProduct = (id: number): void => {
-    const success = productService.deleteProduct(id);
-    if (success) {
+  const handleDeleteProduct = async(id: number): Promise<void> => {
+
+    // const success = productService.deleteProduct(id);
+    const success = await deleteProduct(id);
+    if ( success) {
       if (selectedProduct && selectedProduct.id === id) {
         setSelectedProduct(null);
       }
@@ -85,15 +87,17 @@ const VendorDashboard: React.FC = () => {
     setIsAdding(false);
   };
 
-  const handleSaveProduct = (product: Product): void => {
+  const handleSaveProduct = async (product: Product): Promise<void> => {
     if (isAdding) {
-      const newProduct = productService.addProduct(product);
+      const newProduct = await createProduct(product);
       setSelectedProduct(newProduct);
     } else if (isEditing && selectedProduct) {
-      const updatedProduct = productService.updateProduct(selectedProduct.id, product);
-      if (updatedProduct) {
-        setSelectedProduct(updatedProduct);
-      }
+      const updatedProduct = await updateProduct(selectedProduct.id, product);
+      console.log(updatedProduct);
+      setSelectedProduct(product);
+      // if (updatedProduct) {
+      //   setSelectedProduct(updatedProduct);
+      // }
     }
     
     setIsEditing(false);

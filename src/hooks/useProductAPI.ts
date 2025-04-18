@@ -91,7 +91,7 @@ const createProduct = useCallback(async (product: Omit<Product, 'id' | 'created_
 // Update an existing product
 const updateProduct = useCallback(async (id: number, product: Partial<Product>) => {
   try {
-    const response = await axios.put(`${API_URL}/products/${id}`, product, {
+    const response = await axios.patch(`${API_URL}/products/${id}`, product, {
       headers: getAuthHeaders()
     });
     
