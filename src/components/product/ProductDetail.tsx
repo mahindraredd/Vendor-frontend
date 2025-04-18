@@ -5,8 +5,8 @@ import { Product } from './IProductTypes';
 interface ProductDetailProps {
   product: Product;
   onEdit: () => void;
-  onDelete: () => void;
-  onClose?: () => void; // New prop for close functionality
+  onDelete: () => void; // This now triggers the modal instead of direct deletion
+  onClose?: () => void;
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete, onClose }) => {

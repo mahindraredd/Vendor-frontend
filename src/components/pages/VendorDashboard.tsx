@@ -6,6 +6,7 @@ import { ProductService } from '../product/ProductService';
 import ProductList from '../product/ProductList';
 import ProductDetail from '../product/ProductDetail';
 import ProductForm from '../product/ProductForm';
+import DeleteConfirmationModal from '../ReUsebleComponents/DeleteConfirmationModal';
 import "./VendorDashboard.css"
 import { useProductAPI } from '../../hooks/useProductAPI';
 
@@ -22,9 +23,12 @@ const VendorDashboard: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
   const [categories, setCategories] = useState<string[]>(['All']);
+  // Add state for delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   const productService = ProductService.getInstance();
-  const {fetchProducts,updateProduct,deleteProduct,createProduct} = useProductAPI();
+  const {fetchProducts, updateProduct, deleteProduct, createProduct} = useProductAPI();
 
   useEffect(() => {
     loadProducts();
@@ -63,16 +67,30 @@ const VendorDashboard: React.FC = () => {
     setIsAdding(false);
   };
 
-  const handleDeleteProduct = async(id: number): Promise<void> => {
+  // Modified to show confirmation modal instead of deleting immediately
+  const handleDeleteClick = (product: Product): void => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
 
-    // const success = productService.deleteProduct(id);
-    const success = await deleteProduct(id);
-    if ( success) {
-      if (selectedProduct && selectedProduct.id === id) {
+  // Actual delete function that will be called after confirmation
+  const handleConfirmDelete = async(): Promise<void> => {
+    if (!productToDelete) return;
+
+    const success = await deleteProduct(productToDelete.id);
+    if (success) {
+      if (selectedProduct && selectedProduct.id === productToDelete.id) {
         setSelectedProduct(null);
       }
+      setShowDeleteModal(false);
+      setProductToDelete(null);
       loadProducts();
     }
+  };
+
+  const handleCancelDelete = (): void => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
   };
 
   const handleAddProduct = (): void => {
@@ -177,7 +195,7 @@ const VendorDashboard: React.FC = () => {
             products={filteredProducts}
             onSelectProduct={handleSelectProduct}
             onEditProduct={handleEditProduct}
-            onDeleteProduct={handleDeleteProduct}
+            onDeleteProduct={handleDeleteClick} // Updated to show modal
             selectedProductId={selectedProduct?.id}
             sortBy={sortBy}
             sortDirection={sortDirection}
@@ -191,7 +209,7 @@ const VendorDashboard: React.FC = () => {
             <ProductDetail 
               product={selectedProduct}
               onEdit={() => setIsEditing(true)} 
-              onDelete={() => handleDeleteProduct(selectedProduct.id)}
+              onDelete={() => handleDeleteClick(selectedProduct)} // Updated to show modal
               onClose={handleCloseProductDetail}
             />
           )}
@@ -221,6 +239,15 @@ const VendorDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && productToDelete && (
+        <DeleteConfirmationModal
+          productName={productToDelete.name}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
+      )}
     </div>
   );
 };

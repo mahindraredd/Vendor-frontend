@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ArrowUpDown, Edit, Trash2 } from 'lucide-react';
 import { Product } from './IProductTypes';
-import { useProductAPI } from '../../hooks/useProductAPI';
 
 interface ProductListProps {
   products: Product[];
   onSelectProduct: (product: Product) => void;
   onEditProduct: (product: Product) => void;
-  onDeleteProduct: (id: number) => void;
+  onDeleteProduct: (product: Product) => void; // Updated to take full product instead of just ID
   selectedProductId?: number;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
@@ -24,7 +23,6 @@ const ProductList: React.FC<ProductListProps> = ({
   sortDirection,
   onSort
 }) => {
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <table className="min-w-full divide-y divide-gray-200">
@@ -104,7 +102,7 @@ const ProductList: React.FC<ProductListProps> = ({
                     <span>Edit</span>
                   </button>
                   <button 
-                    onClick={() => onDeleteProduct(product.id)} 
+                    onClick={() => onDeleteProduct(product)} // Now passing whole product
                     className="text-red-500 hover:text-red-700 flex items-center"
                   >
                     <Trash2 size={18} className="mr-1" />
