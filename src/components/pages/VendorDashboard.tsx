@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, PlusCircle } from 'lucide-react';
 import { Product } from '../product/IProductTypes';
-import { ProductService } from '../product/ProductService';
 import ProductList from '../product/ProductList';
 import ProductDetail from '../product/ProductDetail';
 import ProductForm from '../product/ProductForm';
@@ -27,7 +26,6 @@ const VendorDashboard: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const productService = ProductService.getInstance();
   const {fetchProducts, updateProduct, deleteProduct, createProduct} = useProductAPI();
 
   useEffect(() => {
@@ -36,14 +34,22 @@ const VendorDashboard: React.FC = () => {
 
   const loadProducts = async (): Promise<void> => {
     const productsResponse = await fetchProducts();
-    if (productsResponse.data) {
+    if (productsResponse.data && Array.isArray(productsResponse.data)) {
         setProducts(productsResponse.data);
+        // Extract unique categories from the fetched products
+        const uniqueCategories: string[] = [...new Set((productsResponse.data as Product[]).map((product: Product) => product.category))];
+        setCategories(['All', ...uniqueCategories]);
     } else {
         console.error("Failed to fetch products:", productsResponse.error);
     }
-    
-    const allCategories = ['All', ...productService.getCategories()];
-    setCategories(allCategories);
+    if (productsResponse.data) {
+        setProducts(productsResponse.data);
+        // Extract unique categories from the fetched products
+        const uniqueCategories: string[] = [...new Set((productsResponse.data as Product[]).map((product: Product) => product.category))];
+        setCategories(['All', ...uniqueCategories]);
+    } else {
+        console.error("Failed to fetch products:", productsResponse.error);
+    }
   };
 
   const handleSort = (column: SortColumn): void => {
@@ -84,7 +90,7 @@ const VendorDashboard: React.FC = () => {
       }
       setShowDeleteModal(false);
       setProductToDelete(null);
-      loadProducts();
+      loadProducts(); // Reload products after deletion
     }
   };
 
@@ -113,14 +119,11 @@ const VendorDashboard: React.FC = () => {
       const updatedProduct = await updateProduct(selectedProduct.id, product);
       console.log(updatedProduct);
       setSelectedProduct(product);
-      // if (updatedProduct) {
-      //   setSelectedProduct(updatedProduct);
-      // }
     }
     
     setIsEditing(false);
     setIsAdding(false);
-    loadProducts();
+    loadProducts(); // Reload products after adding/editing
   };
 
   const handleCancelEdit = (): void => {
@@ -128,11 +131,19 @@ const VendorDashboard: React.FC = () => {
     setIsAdding(false);
   };
 
+  // Improved search functionality
   const filteredProducts = products
     .filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(search.toLowerCase()) || 
-                          product.description.toLowerCase().includes(search.toLowerCase());
+      // Case insensitive search across multiple fields
+      const searchLower = search.toLowerCase();
+      const matchesSearch = 
+        product.name.toLowerCase().includes(searchLower) || 
+        product.description.toLowerCase().includes(searchLower) ||
+        product.category.toLowerCase().includes(searchLower);
+      
+      // Category filtering
       const matchesCategory = categoryFilter === 'All' || product.category === categoryFilter;
+      
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -195,7 +206,7 @@ const VendorDashboard: React.FC = () => {
             products={filteredProducts}
             onSelectProduct={handleSelectProduct}
             onEditProduct={handleEditProduct}
-            onDeleteProduct={handleDeleteClick} // Updated to show modal
+            onDeleteProduct={handleDeleteClick}
             selectedProductId={selectedProduct?.id}
             sortBy={sortBy}
             sortDirection={sortDirection}
@@ -209,7 +220,7 @@ const VendorDashboard: React.FC = () => {
             <ProductDetail 
               product={selectedProduct}
               onEdit={() => setIsEditing(true)} 
-              onDelete={() => handleDeleteClick(selectedProduct)} // Updated to show modal
+              onDelete={() => handleDeleteClick(selectedProduct)}
               onClose={handleCloseProductDetail}
             />
           )}
