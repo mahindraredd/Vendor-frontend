@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, Plus } from 'lucide-react';
+import { Save, X, Plus, StopCircle } from 'lucide-react';
 
 // Interface definitions
 interface PricingTier {
@@ -13,7 +13,7 @@ interface Product {
   description: string;
   category: string;
   image_url: string;
-  available_quantity: number;
+  stock: number;
   id: number;
   vendor_id: number;
   created_at: string;
@@ -31,7 +31,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [category, setCategory] = useState<string>('');
-  const [availableQuantity, setAvailableQuantity] = useState<number>(0);
+  const [stock, setStock] = useState<number>(0);
   const [imageUrl, setImageUrl] = useState<string>('/api/placeholder/200/200');
   const [pricingTiers, setPricingTiers] = useState<Omit<PricingTier, 'id'>[]>([
     { moq: 1, price: 0 }
@@ -50,7 +50,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
       setName(product.name);
       setDescription(product.description);
       setCategory(product.category);
-      setAvailableQuantity(product.available_quantity);
+      setStock(product.stock);
       setImageUrl(product.image_url);
       
       if (product.pricing_tiers && product.pricing_tiers.length > 0) {
@@ -68,7 +68,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
     if (!name.trim()) newErrors.name = 'Product name is required';
     if (!category) newErrors.category = 'Please select a category';
     if (!description.trim()) newErrors.description = 'Description is required';
-    if (availableQuantity <= 0) newErrors.availableQuantity = 'Quantity must be greater than 0';
+    if (stock <= 0) newErrors.stock = 'Quantity must be greater than 0';
     if (!imageUrl) newErrors.imageUrl = 'Image URL is required';
     
     if (pricingTiers.length === 0) {
@@ -99,7 +99,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
         name,
         description,
         category,
-        available_quantity: availableQuantity,
+        stock: stock,
         image_url: imageUrl,
         pricing_tiers: formattedPricingTiers,
         vendor_id: product?.vendor_id || 1,
@@ -202,17 +202,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Available Quantity <span className="text-red-500">*</span>
+                Stock <span className="text-red-500">*</span>
               </label>
               <input 
                 type="number" 
-                value={availableQuantity}
-                onChange={(e) => setAvailableQuantity(Number(e.target.value))}
+                value={stock}
+                onChange={(e) => setStock(Number(e.target.value))}
                 className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none
-                  ${errors.availableQuantity ? 'border-red-500' : 'border-gray-300'}`}
+                  ${errors.stock ? 'border-red-500' : 'border-gray-300'}`}
                 min="0"
               />
-              {errors.availableQuantity && <p className="text-red-500 text-xs mt-1">{errors.availableQuantity}</p>}
+              {errors.stock && <p className="text-red-500 text-xs mt-1">{errors.stock}</p>}
             </div>
           </div>
           

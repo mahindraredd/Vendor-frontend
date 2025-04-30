@@ -63,7 +63,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">
           <p className="text-sm text-gray-500">Available Stock</p>
-          <p className="font-medium">{product.available_quantity}</p>
+          <p className="font-medium">{product.stock}</p>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">
           <p className="text-sm text-gray-500">Product ID</p>

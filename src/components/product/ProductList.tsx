@@ -85,8 +85,8 @@ const ProductList: React.FC<ProductListProps> = ({
                 <span className="px-2 py-1 text-xs rounded-full bg-gray-100">{product.category}</span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`${product.available_quantity > 100 ? 'text-green-600' : product.available_quantity > 20 ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {product.available_quantity}
+                <span className={`${product.stock > 100 ? 'text-green-600' : product.stock > 20 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  {product.stock}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
