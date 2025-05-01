@@ -14,9 +14,8 @@ const StepThree: React.FC<StepThreeProps> = ({ formData, setFormData, errors, pr
   
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-4 text-center text-[#000000]">Verification & Links</h2>
-
+    <div style={{paddingTop:"0px"}} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+      
       <div className="space-y-1">
         {/* Verification Type */}
         <div className="relative w-full mt-6">

@@ -1,4 +1,3 @@
-// VendorDashboard.tsx - Main dashboard component
 import React, { useState, useEffect } from 'react';
 import { Search, PlusCircle } from 'lucide-react';
 import { Product } from '../product/IProductTypes';
@@ -6,10 +5,11 @@ import ProductList from '../product/ProductList';
 import ProductDetail from '../product/ProductDetail';
 import ProductForm from '../product/ProductForm';
 import DeleteConfirmationModal from '../ReUsebleComponents/DeleteConfirmationModal';
-import "./VendorDashboard.css"
+import "./VendorDashboard.css";
 import { useProductAPI } from '../../hooks/useProductAPI';
+import ToastService from '../../utils/ToastService';
 
-type SortColumn = 'name' | 'category' | 'quantity' | 'price';
+type SortColumn = 'name' | 'category' | 'stock' | 'price';
 type SortDirection = 'asc' | 'desc';
 
 const VendorDashboard: React.FC = () => {
@@ -26,29 +26,28 @@ const VendorDashboard: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  const {fetchProducts, updateProduct, deleteProduct, createProduct} = useProductAPI();
+  const { fetchProducts, updateProduct, deleteProduct, createProduct } = useProductAPI();
+  const toastService = ToastService.getInstance();
 
   useEffect(() => {
     loadProducts();
   }, []);
 
   const loadProducts = async (): Promise<void> => {
-    const productsResponse = await fetchProducts();
-    if (productsResponse.data && Array.isArray(productsResponse.data)) {
+    try {
+      const productsResponse = await fetchProducts();
+      if (productsResponse.data && Array.isArray(productsResponse.data)) {
         setProducts(productsResponse.data);
         // Extract unique categories from the fetched products
         const uniqueCategories: string[] = [...new Set((productsResponse.data as Product[]).map((product: Product) => product.category))];
         setCategories(['All', ...uniqueCategories]);
-    } else {
+      } else {
         console.error("Failed to fetch products:", productsResponse.error);
-    }
-    if (productsResponse.data) {
-        setProducts(productsResponse.data);
-        // Extract unique categories from the fetched products
-        const uniqueCategories: string[] = [...new Set((productsResponse.data as Product[]).map((product: Product) => product.category))];
-        setCategories(['All', ...uniqueCategories]);
-    } else {
-        console.error("Failed to fetch products:", productsResponse.error);
+        toastService.addToast("Failed to fetch products", "error");
+      }
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toastService.addToast("Error loading products", "error");
     }
   };
 
@@ -83,14 +82,20 @@ const VendorDashboard: React.FC = () => {
   const handleConfirmDelete = async(): Promise<void> => {
     if (!productToDelete) return;
 
-    const success = await deleteProduct(productToDelete.id);
-    if (success) {
-      if (selectedProduct && selectedProduct.id === productToDelete.id) {
-        setSelectedProduct(null);
+    try {
+      const success = await deleteProduct(productToDelete.id);
+      if (success) {
+        if (selectedProduct && selectedProduct.id === productToDelete.id) {
+          setSelectedProduct(null);
+        }
+        setShowDeleteModal(false);
+        setProductToDelete(null);
+        toastService.addToast(`Product "${productToDelete.name}" was deleted successfully`, "success");
+        loadProducts(); // Reload products after deletion
       }
-      setShowDeleteModal(false);
-      setProductToDelete(null);
-      loadProducts(); // Reload products after deletion
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toastService.addToast("Failed to delete product", "error");
     }
   };
 
@@ -112,18 +117,58 @@ const VendorDashboard: React.FC = () => {
   };
 
   const handleSaveProduct = async (product: Product): Promise<void> => {
-    if (isAdding) {
-      const newProduct = await createProduct(product);
-      setSelectedProduct(newProduct);
-    } else if (isEditing && selectedProduct) {
-      const updatedProduct = await updateProduct(selectedProduct.id, product);
-      console.log(updatedProduct);
-      setSelectedProduct(product);
+    try {
+      if (isAdding) {
+        const newProduct = await createProduct(product);
+        setSelectedProduct(newProduct);
+        toastService.addToast(`Product "${product.name}" was created successfully`, "success");
+      } else if (isEditing && selectedProduct) {
+        const updatedProduct = await updateProduct(selectedProduct.id, product);
+        setSelectedProduct(updatedProduct);
+        toastService.addToast(`Product "${product.name}" was updated successfully`, "success");
+      }
+      
+      setIsEditing(false);
+      setIsAdding(false);
+      loadProducts(); // Reload products after adding/editing
+    } catch (error: any) {
+      console.error("Error saving product:", error);
+      
+      // Extract the error message for the user
+      let errorMessage = "Failed to save product";
+      
+      if (error.response) {
+        // Check for validation errors from API (422 Unprocessable Entity)
+        if (error.response.status === 422) {
+          const validationErrors = error.response.data.detail || error.response.data;
+          
+          // Format validation errors for display
+          if (Array.isArray(validationErrors)) {
+            // If API returns array of validation errors
+            errorMessage = validationErrors.map(err => 
+              `${err.loc ? err.loc.join('.') + ': ' : ''}${err.msg}`
+            ).join('\n');
+          } else if (typeof validationErrors === 'object') {
+            // If API returns object with field errors
+            errorMessage = Object.entries(validationErrors)
+              .map(([field, msg]) => `${field}: ${msg}`)
+              .join('\n');
+          } else if (typeof validationErrors === 'string') {
+            // If API returns string error
+            errorMessage = validationErrors;
+          }
+          
+          // Display detailed error in console for debugging
+          console.error("Validation errors:", validationErrors);
+        } else {
+          // Other API errors
+          errorMessage = error.response.data.detail || error.response.data.message || error.message;
+        }
+      }
+      
+      // Show error toast with specific message
+      toastService.addToast(`Error: ${errorMessage}`, "error");
     }
-    
-    setIsEditing(false);
-    setIsAdding(false);
-    loadProducts(); // Reload products after adding/editing
   };
 
   const handleCancelEdit = (): void => {
@@ -152,13 +197,10 @@ const VendorDashboard: React.FC = () => {
         comparison = a.name.localeCompare(b.name);
       } else if (sortBy === 'category') {
         comparison = a.category.localeCompare(b.category);
-      } else if (sortBy === 'quantity') {
-        comparison = a.available_quantity - b.available_quantity;
+      } else if (sortBy === 'stock') {
+        comparison = a.stock - b.stock;
       } else if (sortBy === 'price') {
-        // Sort by lowest price tier
-        const aPrice = a.pricing_tiers[0]?.price || 0;
-        const bPrice = b.pricing_tiers[0]?.price || 0;
-        comparison = aPrice - bPrice;
+        comparison = a.price - b.price;
       }
       return sortDirection === 'asc' ? comparison : -comparison;
     });

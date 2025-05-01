@@ -1,5 +1,6 @@
 import React from "react";
 import FloatingInput from "../ReUsebleComponents/FloatingInput";
+import { MdPadding } from "react-icons/md";
 
 interface StepTwoProps {
   formData: any;
@@ -14,9 +15,8 @@ const StepTwo: React.FC<StepTwoProps> = ({ formData, setFormData, errors, next, 
   
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-4 text-center text-[#000000]">Owner & Account Info</h2>
-
+    <div style={{paddingTop:"0px"}} className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+      
       <div className="space-y-1">
         <FloatingInput
           label="Owner Name"

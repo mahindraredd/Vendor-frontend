@@ -1,15 +1,17 @@
-import React from 'react';
-import { Edit, Trash2, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from './IProductTypes';
 
 interface ProductDetailProps {
   product: Product;
   onEdit: () => void;
-  onDelete: () => void; // This now triggers the modal instead of direct deletion
+  onDelete: () => void;
   onClose?: () => void;
 }
 
 const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete, onClose }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -17,6 +19,22 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  const nextImage = () => {
+    if (product.image_urls.length > 1) {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === product.image_urls.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
+  const prevImage = () => {
+    if (product.image_urls.length > 1) {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === 0 ? product.image_urls.length - 1 : prevIndex - 1
+      );
+    }
   };
 
   return (
@@ -50,11 +68,43 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete
         </div>
       </div>
       
-      <img 
-        src={product.image_url} 
-        alt={product.name} 
-        className="w-full h-48 object-contain rounded-lg bg-gray-50"
-      />
+      {/* Image gallery with navigation */}
+      <div className="relative">
+        <img 
+          src={product.image_urls[currentImageIndex] || '/api/placeholder/200/200'} 
+          alt={product.name} 
+          className="w-full h-48 object-contain rounded-lg bg-gray-50"
+        />
+        
+        {product.image_urls.length > 1 && (
+          <>
+            <button 
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+            >
+              <ChevronRight size={20} />
+            </button>
+            
+            <div className="flex justify-center mt-2">
+              {product.image_urls.map((_, index) => (
+                <button 
+                  key={index} 
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`h-2 w-2 rounded-full mx-1 ${
+                    index === currentImageIndex ? 'bg-blue-500' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
       
       <div className="grid grid-cols-2 gap-2 mt-4">
         <div className="bg-gray-50 p-3 rounded-lg">
@@ -66,8 +116,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onEdit, onDelete
           <p className="font-medium">{product.stock}</p>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">
-          <p className="text-sm text-gray-500">Product ID</p>
-          <p className="font-medium">{product.id}</p>
+          <p className="text-sm text-gray-500">Base Price</p>
+          <p className="font-medium">${product.price?.toFixed(2)}</p>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">
           <p className="text-sm text-gray-500">Created</p>

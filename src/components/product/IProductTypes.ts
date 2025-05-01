@@ -8,7 +8,8 @@ export interface PricingTier {
     name: string;
     description: string;
     category: string;
-    image_url: string;
+    image_urls: string[];
+    price: number;
     stock : number;
     id: number;
     vendor_id: number;

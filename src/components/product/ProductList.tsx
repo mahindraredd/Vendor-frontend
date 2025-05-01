@@ -6,7 +6,7 @@ interface ProductListProps {
   products: Product[];
   onSelectProduct: (product: Product) => void;
   onEditProduct: (product: Product) => void;
-  onDeleteProduct: (product: Product) => void; // Updated to take full product instead of just ID
+  onDeleteProduct: (product: Product) => void;
   selectedProductId?: number;
   sortBy: string;
   sortDirection: 'asc' | 'desc';
@@ -76,7 +76,11 @@ const ProductList: React.FC<ProductListProps> = ({
               onClick={() => onSelectProduct(product)}
             >
               <td className="px-6 py-4 whitespace-nowrap">
-                <img src={product.image_url} alt={product.name} className="h-12 w-12 rounded-md object-cover" />
+                <img 
+                  src={product.image_urls && product.image_urls.length > 0 ? product.image_urls[0] : '/api/placeholder/50/50'} 
+                  alt={product.name} 
+                  className="h-12 w-12 rounded-md object-cover" 
+                />
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="font-medium text-gray-900">{product.name}</div>
@@ -90,7 +94,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                ${product.pricing_tiers[0]?.price.toFixed(2)}
+                ${product.price?.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <div className="flex space-x-4" onClick={(e) => e.stopPropagation()}>
@@ -102,7 +106,7 @@ const ProductList: React.FC<ProductListProps> = ({
                     <span>Edit</span>
                   </button>
                   <button 
-                    onClick={() => onDeleteProduct(product)} // Now passing whole product
+                    onClick={() => onDeleteProduct(product)}
                     className="text-red-500 hover:text-red-700 flex items-center"
                   >
                     <Trash2 size={18} className="mr-1" />
