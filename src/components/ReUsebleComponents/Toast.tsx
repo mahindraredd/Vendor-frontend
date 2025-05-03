@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ToastService from '../utils/ToastService';
+import ToastService from '../../utils/ToastService';
 
 interface ToastProps {
   message: string;
