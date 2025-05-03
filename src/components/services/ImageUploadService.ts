@@ -103,10 +103,15 @@ class ImageUploadService {
       }
       
       // Create simulated URLs for each file
-      return files.map(file => ({
-        url: `http://localhost:8000/uploads/${Date.now()}-${file.name.replace(/\s/g, '-')}`,
-        success: true
-      }));
+      const binaryPromises = files.map(async (file) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const binaryData = new Uint8Array(arrayBuffer);
+        return {
+          url: `data:image/png;base64,${btoa(String.fromCharCode(...binaryData))}`,
+          success: true,
+        };
+      });
+      return Promise.all(binaryPromises);
       
       // In a real implementation, you'd do something like:
       // return Promise.all(files.map(file => this.uploadImage(file)));

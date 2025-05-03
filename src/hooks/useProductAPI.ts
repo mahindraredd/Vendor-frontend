@@ -100,10 +100,17 @@ export const useProductAPI = () => {
       formData.append('pricing_tiers', JSON.stringify(formattedPricingTiers));
 
       // Append valid image URLs
-      validImageUrls.forEach((url, index) => {
-        formData.append(`images`, url);
+      product.image_urls.forEach((url) => {
+        if (url.startsWith('data:')) {
+          const binary = atob(url.split(',')[1]);
+          const array = [];
+          for (let i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+          }
+          const blob = new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
+          formData.append('images', blob, `image_${Date.now()}.jpg`);
+        }
       });
-
       // Debug logging - check the FormData content
       console.log("Sending product FormData to API:", formData);
 

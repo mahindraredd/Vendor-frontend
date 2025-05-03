@@ -16,7 +16,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
   const [category, setCategory] = useState<string>('');
   const [stock, setStock] = useState<number>(0);
   const [basePrice, setBasePrice] = useState<number>(0);
-  const [imageUrls, setImageUrls] = useState<string[]>(['/api/placeholder/200/200']);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [pricingTiers, setPricingTiers] = useState<Omit<PricingTier, 'id'>[]>([
     { moq: 1, price: 0 }
   ]);
@@ -294,7 +294,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel, is
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
-
+  console.log("Image URLs:", imageUrls);
   return (
     <div className="p-6 bg-white rounded-lg shadow">
       <h2 className="text-xl font-bold mb-4">{isAdding ? "Add New Product" : "Edit Product"}</h2>
