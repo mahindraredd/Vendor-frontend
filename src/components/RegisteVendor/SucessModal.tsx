@@ -9,11 +9,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center">
         <h2 className="text-3xl font-bold text-[#1DA1F2] mb-4">
-          🎉 Welcome to LoveToLocal!
+          🎉 Welcome to ShopInStreet!
         </h2>
 
         <p className="text-gray-700 mb-4 text-sm leading-relaxed">
-          You're now an official partner of <strong>LoveToLocal</strong> — a
+          You're now an official partner of <strong>ShopInStreet</strong> — a
           community-driven B2B marketplace built on trust, connection, and
           local empowerment. 🌱
           <br />

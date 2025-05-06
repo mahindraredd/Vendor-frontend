@@ -32,7 +32,7 @@ const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({
         <div className="border-2 border-gray-800 p-4 my-4 bg-white">
           <div className="border-b-2 border-gray-800 pb-4 mb-4 flex justify-between">
             <div>
-              <h4 className="font-bold text-lg">LoveToLocal</h4>
+              <h4 className="font-bold text-lg">ShopInStreet</h4>
               <p className="text-sm">Order #{order.id}</p>
             </div>
             <div className="text-right">

@@ -4,7 +4,7 @@ import { Order, OrderAddress } from './types';
 
 // Mock vendor address
 export const vendorAddress: OrderAddress = {
-  name: "LoveToLocal Vendor Shop",
+  name: "ShopInStreet Vendor Shop",
   street: "Shop #5, Main Market",
   city: "New Delhi",
   state: "Delhi",

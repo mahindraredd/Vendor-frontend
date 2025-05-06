@@ -5,7 +5,7 @@ import ProductList from '../product/ProductList';
 import ProductDetail from '../product/ProductDetail';
 import ProductForm from '../product/ProductForm';
 import DeleteConfirmationModal from '../ReUsebleComponents/DeleteConfirmationModal';
-import "./VendorDashboard.css";
+import PageHeader from '../layout/PageHeader';
 import { useProductAPI } from '../../hooks/useProductAPI';
 import ToastService from '../../utils/ToastService';
 
@@ -206,44 +206,45 @@ const VendorDashboard: React.FC = () => {
     });
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <>
       {/* Header */}
-      <header className="bg-black text-white p-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Vendor Product Dashboard</h1>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 border rounded-lg text-black focus:ring-2 focus:ring-blue-500 focus:outline-none w-64"
-            />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-          </div>
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-          <button 
-            onClick={handleAddProduct}
-            className="flex items-center gap-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          >
-            <PlusCircle size={18} />
-            <span>Add Product</span>
-          </button>
+      <PageHeader title="Products Dashboard">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 pr-4 py-2 border rounded-lg text-black focus:ring-2 focus:ring-blue-500 focus:outline-none w-64"
+          />
+          <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
         </div>
-      </header>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="border rounded-lg px-3 py-2 text-black focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <button 
+          onClick={handleAddProduct}
+          className="flex items-center gap-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+        >
+          <PlusCircle size={18} />
+          <span>Add Product</span>
+        </button>
+      </PageHeader>
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Products List */}
-        <div className="w-2/3 overflow-auto p-4">
+        <div
+          className={`${
+            selectedProduct || isAdding ? 'w-2/3' : 'w-full'
+          } overflow-auto p-4 transition-all duration-300`}
+        >
           <ProductList 
             products={filteredProducts}
             onSelectProduct={handleSelectProduct}
@@ -301,7 +302,7 @@ const VendorDashboard: React.FC = () => {
           onCancel={handleCancelDelete}
         />
       )}
-    </div>
+    </>
   );
 };
 

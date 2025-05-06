@@ -14,7 +14,7 @@ const AlreadyExistsModal: React.FC<AlreadyExistsModalProps> = ({ onClose }) => {
 
         <p className="text-gray-700 mb-6">
           It looks like you're already part of{" "}
-          <strong>LoveToLocal</strong>! 🎉 <br />
+          <strong>ShopInStreet</strong>! 🎉 <br />
           Please login to your vendor dashboard.
         </p>
 

@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Package,
-  Truck,
-  CheckCircle,
-  Printer,
-  AlertCircle,
   Search,
-  X,
-  Download,
-  ArrowLeft,
-  User,
+  AlertCircle,
 } from 'lucide-react';
 import Toast from './Toast';
 import OrderCard from './OrderCard';
@@ -17,6 +10,7 @@ import OrderDetail from './OrderDetail';
 import ShippingLabelModal from './ShippingLabelModal';
 import { MOCK_ORDERS, vendorAddress } from './mockData';
 import { Order, OrderStatus } from './types';
+import PageHeader from '../layout/PageHeader';
 
 const VendorOrdersDashboard: React.FC = () => {
   // State management
@@ -154,136 +148,92 @@ const VendorOrdersDashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-black text-white p-6 flex flex-col">
-        <h1 className="text-2xl font-bold mb-8">LoveToLocal</h1>
-
-        <nav className="space-y-2 flex-1">
-          <button className="flex items-center px-4 py-3 w-full text-left rounded-lg text-white bg-blue-500">
-            <Package size={20} className="mr-3" />
-            <span>Orders</span>
-          </button>
-
-          <button className="flex items-center px-4 py-3 w-full text-left rounded-lg text-gray-400 hover:bg-gray-800">
-            <Truck size={20} className="mr-3" />
-            <span>Shipping</span>
-          </button>
-
-          <button className="flex items-center px-4 py-3 w-full text-left rounded-lg text-gray-400 hover:bg-gray-800">
-            <CheckCircle size={20} className="mr-3" />
-            <span>Completed</span>
-          </button>
-        </nav>
-
-        {/* User Profile */}
-        <div className="mt-auto pt-6 border-t border-gray-800">
-          <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-              VS
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium">Vendor Shop</p>
-              <p className="text-xs text-gray-500">Admin</p>
-            </div>
-          </div>
+    <>
+      {/* Header */}
+      <PageHeader title="Orders Dashboard">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search orders..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+          <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b p-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">Orders Dashboard</h2>
+        <select
+          className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="all">All Orders</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+        </select>
+      </PageHeader>
 
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search orders..."
-                className="pl-10 pr-4 py-2 border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
-            </div>
+      {/* Content Area */}
+      <div className="flex-1 overflow-hidden flex">
+        {/* Orders List - Make it even smaller when detail is open */}
+        <div
+          className={`${
+            isDetailOpen ? 'w-1/5' : 'w-2/3'
+          } overflow-y-auto p-4 transition-all duration-300`}
+        >
+          <h3 className="text-lg font-bold mb-4">Orders ({filteredOrders.length})</h3>
 
-            <select
-              className="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Orders</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-            </select>
-          </div>
-        </header>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-hidden flex">
-          {/* Orders List */}
-          <div
-            className={`${
-              isDetailOpen ? 'w-1/2' : 'w-full'
-            } overflow-y-auto p-6 transition-all duration-300`}
-          >
-            <h3 className="text-lg font-bold mb-4">Orders ({filteredOrders.length})</h3>
-
-            <div className="space-y-4">
-              {filteredOrders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  onSelect={() => handleSelectOrder(order)}
-                  onUpdateStatus={handleUpdateStatus}
-                  onGenerateLabel={handleGenerateLabel}
-                  onMarkAsShipped={handleMarkAsShipped}
-                  isSelected={selectedOrder?.id === order.id}
-                />
-              ))}
-
-              {filteredOrders.length === 0 && (
-                <div className="bg-white rounded-lg shadow p-8 text-center">
-                  <AlertCircle size={48} className="mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">No orders found matching your criteria</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Order Detail Side Panel */}
-          {isDetailOpen && selectedOrder ? (
-            <div className="w-1/2 bg-white border-l overflow-y-auto">
-              <OrderDetail
-                order={selectedOrder}
-                onClose={handleCloseDetail}
+          <div className="space-y-4">
+            {filteredOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                onSelect={() => handleSelectOrder(order)}
                 onUpdateStatus={handleUpdateStatus}
                 onGenerateLabel={handleGenerateLabel}
                 onMarkAsShipped={handleMarkAsShipped}
-                onSaveStatus={handleSaveStatus}
+                isSelected={selectedOrder?.id === order.id}
               />
-            </div>
-          ) : (
-            !isDetailOpen && (
-              <div className="w-1/2 bg-white border-l flex items-center justify-center">
-                <div className="text-center p-8">
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                    <Package size={32} className="text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-600 mb-2">
-                    Select an order to view details
-                  </h3>
-                  <p className="text-gray-500 text-sm">
-                    Click on any order from the list to view its details
-                  </p>
-                </div>
+            ))}
+
+            {filteredOrders.length === 0 && (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <AlertCircle size={48} className="mx-auto mb-4 text-gray-300" />
+                <p className="text-gray-500">No orders found matching your criteria</p>
               </div>
-            )
-          )}
+            )}
+          </div>
         </div>
+
+        {/* Order Detail Side Panel - Make it even larger when detail is open */}
+        {isDetailOpen && selectedOrder ? (
+          <div className="w-4/5 bg-white border-l overflow-y-auto transition-all duration-300">
+            <OrderDetail
+              order={selectedOrder}
+              onClose={handleCloseDetail}
+              onUpdateStatus={handleUpdateStatus}
+              onGenerateLabel={handleGenerateLabel}
+              onMarkAsShipped={handleMarkAsShipped}
+              onSaveStatus={handleSaveStatus}
+            />
+          </div>
+        ) : (
+          <div className="w-1/3 bg-white border-l flex items-center justify-center transition-all duration-300">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Package size={32} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-600 mb-2">
+                Select an order to view details
+              </h3>
+              <p className="text-gray-500 text-sm">
+                Click on any order from the list to view its details
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Shipping Label Modal */}
@@ -305,7 +255,7 @@ const VendorOrdersDashboard: React.FC = () => {
           onClose={() => setToast((prev) => ({ ...prev, visible: false }))}
         />
       )}
-    </div>
+    </>
   );
 };
 
